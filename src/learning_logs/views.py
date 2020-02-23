@@ -18,10 +18,7 @@ def topics(request):
 @login_required
 def topic(request, topic_id):
     """Show a single topic and all its entries."""
-    try:
-        topic = Topic.objects.get(id=topic_id)
-    except:
-        raise Http404
+    topic = check_topic_exists(topic_id)
     # Make sure the topic belongs to the current user.
     check_topic_owner(topic, request)
     entries = topic.entry_set.order_by('-date_added')
@@ -49,10 +46,7 @@ def new_topic(request):
 @login_required
 def new_entry(request, topic_id):
     """Add a new entry for a particular topic."""
-    try:
-        topic = Topic.objects.get(id=topic_id)
-    except:
-        raise Http404
+    topic = check_topic_exists(topic_id)
     check_topic_owner(topic, request)
     if request.method != 'POST':
         # No data submitted; create a blank form.
@@ -88,4 +82,11 @@ def edit_entry(request, entry_id):
 def check_topic_owner(topic, request):
     """Checking if logged-in user is topic owner."""
     if topic.owner != request.user:
+        raise Http404
+
+def check_topic_exists(topic_id):
+    try:
+        topic = Topic.objects.get(id=topic_id)
+        return topic
+    except:
         raise Http404
