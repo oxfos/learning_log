@@ -64,7 +64,7 @@ def new_entry(request, topic_id):
 @login_required
 def edit_entry(request, entry_id):
     """Edit an entry."""
-    entry = Entry.objects.get(id=entry_id)
+    entry = check_entry_exists(entry_id)
     topic = entry.topic
     check_topic_owner(topic, request)
     if request.method != 'POST':
@@ -88,5 +88,12 @@ def check_topic_exists(topic_id):
     try:
         topic = Topic.objects.get(id=topic_id)
         return topic
+    except:
+        raise Http404
+
+def check_entry_exists(entry_id):
+    try:
+        entry = Entry.objects.get(id=entry_id)
+        return entry
     except:
         raise Http404
